@@ -106,16 +106,17 @@
 						}
 
 						if (value){
-							if (value.trim() === 'H101'){
+							const trimmedValue = value.trim();
+							if (trimmedValue === '学生ホール' || trimmedValue === '体育館'){
 								hideError();
 								scanningActive = false;
 								stopStream();
-								location.href = "{{ url_for('select') }}";
+								location.href = "{{ url_for('select') }}?qr_code=" + encodeURIComponent(trimmedValue);
 								return;
 							}else{
 								// エラーは連続表示しすぎない
 								if (Date.now() - lastErrorShownAt > 1500){
-									showError('このQRコードは無効です。指定のQRコードを読み込んでください。（期待値: H101）');
+									showError('このQRコードは無効です。指定のQRコードを読み込んでください。（期待値: 学生ホール または 体育館）');
 								}
 							}
 						}

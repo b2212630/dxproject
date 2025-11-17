@@ -10,7 +10,7 @@
 	<main class="container two-columns">
 		<section class="card intro-card">
 			<p class="intro-text">
-				あなたの現在地はH101です。<br>
+				あなたの現在地は{{ qr_code if qr_code else '学生ホール' }}です。<br>
 				参加するプログラムを選択してください。
 			</p>
 			{% if error %}
