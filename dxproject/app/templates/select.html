@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>プログラム選択</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<main class="container two-columns">
+		<section class="card intro-card">
+			<p class="intro-text">
+				あなたの現在地はH101です。<br>
+				参加するプログラムを選択してください。
+			</p>
+			{% if error %}
+				<p class="error">{{ error }}</p>
+			{% endif %}
+			<form method="post" class="stack">
+				<button class="btn primary" name="program" value="研究室見学">研究室見学</button>
+				<button class="btn primary" name="program" value="学科紹介">学科紹介</button>
+				<button class="btn primary" name="program" value="模擬講義">模擬講義</button>
+			</form>
+		</section>
+	</main>
+</body>
+</html>
+

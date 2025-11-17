@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>オープンキャンパス道案内 | QR読み込み</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<main class="container">
+		<section class="card intro-card">
+			<p class="intro-text">
+				これはオープンキャンパス道案内システムです。<br>
+				QRコードがある場所から目的地までの道案内をします。<br>
+				QRコードを読み込んでください。
+			</p>
+			<a class="btn primary" href="{{ url_for('scan') }}">読み込む</a>
+		</section>
+	</main>
+</body>
+</html>

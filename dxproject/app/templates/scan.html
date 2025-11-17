@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>QRコードを読み込む</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<main class="container two-columns">
+		<section class="card">
+			<h1 class="title">QRコードをカメラで読み込み</h1>
+			<p class="note">カメラをQRに向けてください。自動で読み取りを行います。</p>
+			<div class="camera">
+				<video id="preview" autoplay playsinline></video>
+			</div>
+			<p id="scan-error" class="error" style="display:none;"></p>
+			<div class="actions">
+				<a class="btn" href="{{ url_for('home') }}">戻る</a>
+				<a class="btn primary" id="fake-next" href="{{ url_for('select') }}" style="display:none;">読み込み完了へ（仮）</a>
+			</div>
+		</section>
+	</main>
+	<!-- jsQR フォールバック用（CDN） -->
+	<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+	<script>
+		(async () => {
+			const video = document.getElementById('preview');
+			const errorEl = document.getElementById('scan-error');
+			let detector = null;
+			let scanningActive = true;
+			let lastErrorShownAt = 0;
+			let usingJsQR = false;
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+			function showError(msg){
+				errorEl.textContent = msg;
+				errorEl.style.display = 'block';
+				lastErrorShownAt = Date.now();
+			}
+			function hideError(){
+				errorEl.style.display = 'none';
+			}
+			function stopStream(){
+				try{
+					const stream = video.srcObject;
+					if(stream){
+						stream.getTracks().forEach(t => t.stop());
+					}
+				}catch(_){}
+			}
+
+			try {
+				// カメラ開始
+				const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+				video.srcObject = stream;
+			} catch (e) {
+				showError('カメラを開始できませんでした。ブラウザの権限設定をご確認ください。');
+				console.warn(e);
+				return;
+			}
+
+			// BarcodeDetector が利用可能か確認
+			if ('BarcodeDetector' in window) {
+				try{
+					const supported = await window.BarcodeDetector.getSupportedFormats();
+					if (supported.includes('qr_code')) {
+						detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+					}
+				}catch(e){
+					// 続行不可
+				}
+			}
+
+			// フォールバック判定（jsQRが使えればそれを利用）
+			if (!detector) {
+				if (window.jsQR){
+					usingJsQR = true;
+					hideError();
+				}else{
+					showError('このブラウザはQR読み取りに未対応です。最新のChrome/Edge、またはjsQRが読み込める環境でお試しください。');
+					return;
+				}
+			}
+
+			// 読み取りループ
+			async function tick(){
+				if (!scanningActive) return;
+				try{
+					if (video.readyState >= 2){ // HAVE_CURRENT_DATA
+						let value = '';
+						if (!usingJsQR){
+							const barcodes = await detector.detect(video);
+							if (barcodes && barcodes.length > 0){
+								value = barcodes[0].rawValue || '';
+							}
+						}else{
+							// jsQR フォールバック
+							canvas.width = video.videoWidth || 640;
+							canvas.height = video.videoHeight || 480;
+							ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+							const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+							const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+							if (code && code.data) value = code.data;
+						}
+
+						if (value){
+							if (value.trim() === 'H101'){
+								hideError();
+								scanningActive = false;
+								stopStream();
+								location.href = "{{ url_for('select') }}";
+								return;
+							}else{
+								// エラーは連続表示しすぎない
+								if (Date.now() - lastErrorShownAt > 1500){
+									showError('このQRコードは無効です。指定のQRコードを読み込んでください。（期待値: H101）');
+								}
+							}
+						}
+					}
+				}catch(e){
+					console.warn('detect error', e);
+				}
+				requestAnimationFrame(tick);
+			}
+			requestAnimationFrame(tick);
+		})();
+	</script>
+</body>
+</html>
+
