@@ -10,7 +10,7 @@
 	<main class="container two-columns">
 		<section class="card intro-card">
 			<p class="intro-text">
-				あなたの現在地は{{ qr_code if qr_code else '学生ホール' }}です。<br>
+				あなたの現在地はH101です。<br>
 				参加するプログラムを選択してください。
 			</p>
 			{% if error %}
@@ -20,6 +20,7 @@
 				<button class="btn primary" name="program" value="研究室見学">研究室見学</button>
 				<button class="btn primary" name="program" value="学科紹介">学科紹介</button>
 				<button class="btn primary" name="program" value="模擬講義">模擬講義</button>
+				<button class="btn primary" name="program" value="バス停">バス停</button>
 			</form>
 		</section>
 	</main>

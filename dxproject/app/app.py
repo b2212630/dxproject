@@ -61,6 +61,8 @@ def route_image():
             image_filename = "学生ホール-B201.png"
         elif program == "研究室見学":
             image_filename = "学生ホール-E304.png"
+        elif program == "バス停":
+            image_filename = "学生ホール-バス停.png"
     elif qr_code == "体育館":
         if program == "学科紹介":
             image_filename = "体育館-B101.png"
@@ -68,6 +70,8 @@ def route_image():
             image_filename = "体育館-B201.png"
         elif program == "研究室見学":
             image_filename = "体育館-E304.png"
+        elif program == "バス停":
+            image_filename = "体育館-バス停.png"
     
     print(f"DEBUG: image_filename={image_filename}")
     
